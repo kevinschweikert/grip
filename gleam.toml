@@ -1,0 +1,17 @@
+name = "grip"
+version = "1.0.0"
+
+description = "Control your spoons! An RFC 9309 robots.txt parser and matcher"
+licences = ["MIT"]
+repository = { type = "tangled", user = "kevinschweikert.de", repo = "grip" }
+
+[dependencies]
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
+gleam_http = ">= 4.5.0 and < 5.0.0"
+gleam_time = ">= 1.11.0 and < 2.0.0"
+
+[dev_dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"
+checkmark = ">= 3.0.1 and < 4.0.0"
+simplifile = ">= 2.7.0 and < 3.0.0"
+envoy = ">= 1.2.0 and < 2.0.0"

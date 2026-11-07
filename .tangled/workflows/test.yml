@@ -1,0 +1,30 @@
+when:
+  - event: ["push"]
+    branch: ["main"]
+  - event: ["pull_request"]
+    branch: ["main"]
+
+engine: microvm
+image: nixos
+
+environment:
+  CI: "true"
+
+registry:
+  nixpkgs: github:nixos/nixpkgs/nixos-unstable
+
+dependencies:
+  - gleam
+  - beamPackages.erlang
+  - rebar3
+  - nodejs
+
+steps:
+  - name: "Download dependencies"
+    command: "gleam deps download"
+  - name: "Run tests (Erlang)"
+    command: "gleam test"
+  - name: "Run tests (JS)"
+    command: "gleam test --target javascript"
+  - name: "Check formatting"
+    command: "gleam format --check src test"

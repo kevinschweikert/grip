@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "29"
+          gleam-version: "1.19.2"
+          rebar3-version: "3"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+      - run: gleam deps download
+      - name: Run tests (Erlang)
+        run: gleam test
+      - name: Run tests (JS)
+        run: gleam test --target javascript
+      - name: Check formatting
+        run: gleam format --check src test

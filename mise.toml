@@ -1,0 +1,8 @@
+[tools]
+erlang = "29.1.1"
+gleam = "1.19.2"
+node = "26.13.0"
+
+[tasks.test]
+description = "runs the tests on both targets"
+run = "gleam test && gleam test --target javascript"
