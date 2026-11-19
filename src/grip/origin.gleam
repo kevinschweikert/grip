@@ -20,6 +20,21 @@ pub opaque type Origin {
   Origin(scheme: http.Scheme, host: String, port: Int)
 }
 
+/// Returns the scheme from the origin
+pub fn scheme(origin: Origin) -> http.Scheme {
+  origin.scheme
+}
+
+/// Returns the host from the origin
+pub fn host(origin: Origin) -> String {
+  origin.host
+}
+
+/// Returns the port from the origin
+pub fn port(origin: Origin) -> Int {
+  origin.port
+}
+
 /// Creates an origin from a URL
 pub fn from_uri(uri: uri.Uri) -> Result(Origin, Nil) {
   case uri {
