@@ -13,26 +13,13 @@ import gleam/result
 import gleam/string
 import gleam/uri
 
+const robots_path = "/robots.txt"
+
 /// A type representing the robots origin.
 ///
 /// Primarily intended to be used as a lookup key by crawlers
 pub opaque type Origin {
   Origin(scheme: http.Scheme, host: String, port: Int)
-}
-
-/// Returns the scheme from the origin
-pub fn scheme(origin: Origin) -> http.Scheme {
-  origin.scheme
-}
-
-/// Returns the host from the origin
-pub fn host(origin: Origin) -> String {
-  origin.host
-}
-
-/// Returns the port from the origin
-pub fn port(origin: Origin) -> Int {
-  origin.port
 }
 
 /// Creates an origin from a URL
@@ -63,11 +50,19 @@ pub fn from_request(request: request.Request(a)) -> Origin {
   )
 }
 
-fn port_from_scheme(scheme: http.Scheme) -> Int {
-  case scheme {
-    http.Http -> 80
-    http.Https -> 443
-  }
+/// Returns an `uri.Uri` describing the origins root host
+pub fn to_uri(origin: Origin) -> uri.Uri {
+  uri.Uri(
+    ..uri.empty,
+    scheme: origin.scheme
+      |> http.scheme_to_string
+      |> option.Some,
+    host: option.Some(origin.host),
+    port: case origin.port == port_from_scheme(origin.scheme) {
+      True -> option.None
+      False -> option.Some(origin.port)
+    },
+  )
 }
 
 /// The URL to fetch the rules from
@@ -85,18 +80,29 @@ fn port_from_scheme(scheme: http.Scheme) -> Int {
 ///   == "https://example.com/robots.txt"
 /// ```
 pub fn robots_url(origin: Origin) -> uri.Uri {
-  uri.Uri(
-    ..uri.empty,
-    scheme: origin.scheme
-      |> http.scheme_to_string
-      |> option.Some,
-    host: option.Some(origin.host),
-    port: case origin.port == port_from_scheme(origin.scheme) {
-      True -> option.None
-      False -> option.Some(origin.port)
-    },
-    path: "/robots.txt",
-  )
+  uri.Uri(..to_uri(origin), path: robots_path)
+}
+
+/// Returns an `request.Request(String)` describing the origins root host
+pub fn to_request(origin: Origin) -> request.Request(String) {
+  request.new()
+  |> request.set_scheme(origin.scheme)
+  |> request.set_host(origin.host)
+  |> request.set_port(origin.port)
+}
+
+/// Returns an `request.Request(String)` describing the origins robot url
+pub fn robots_request(origin: Origin) -> request.Request(String) {
+  origin
+  |> to_request()
+  |> request.set_path(robots_path)
+}
+
+fn port_from_scheme(scheme: http.Scheme) -> Int {
+  case scheme {
+    http.Http -> 80
+    http.Https -> 443
+  }
 }
 
 /// Whether a URL belongs to this origin
